@@ -22,7 +22,7 @@ class Projectiles(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.velocity
-        if self.rect.x < 0:
+        if self.rect.x > 900:
             self.kill()
 
 class Player(pygame.sprite.Sprite):
@@ -41,6 +41,16 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
+
+        if self.position[0] < 0:
+            self.position[0] = 0
+        elif self.position[0] + self.rect.width > 900:
+            self.position[0] = 900 - self.rect.width
+        elif self.position[1] + self.rect.height < 320:
+            self.position[1] = 320 - self.rect.height
+        elif self.position[1] + self.rect.height > 400:
+            self.position[1] = 400 - self.rect.height
+        
         self.rect.topleft = self.position
 
     def draw(self, surface):
@@ -48,16 +58,16 @@ class Player(pygame.sprite.Sprite):
 
     def move_left(self):
         self.velocity[0] = -1
-
+        self.velocity[1] = 0
     def move_right(self):
         self.velocity[0] = 1
-
+        self.velocity[1] = 0
     def move_up(self):
         self.velocity[1] = -1
-
+        self.velocity[0] = 0
     def move_down(self):
         self.velocity[1] = 1.
-
+        self.velocity[0] = 0
     def stop(self):
         self.velocity[0] = 0
         self.velocity[1] = 0
@@ -68,6 +78,7 @@ class Player(pygame.sprite.Sprite):
 
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
+keys_pressed = set()
 
 while continuer:
     clock.tick(60)
@@ -81,6 +92,7 @@ while continuer:
             continuer = False
 
         if event.type == pygame.KEYDOWN:
+            keys_pressed.add(event.key)
             if event.key == pygame.K_RIGHT:
                 player.move_right()
             elif event.key == pygame.K_LEFT:
@@ -91,9 +103,10 @@ while continuer:
                 player.move_up()
             elif event.key == pygame.K_SPACE:
                 player.tirer(projectiles)
-        if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or 
-                                           event.key == pygame.K_DOWN or event.key == pygame.K_UP):
-            player.stop()
+        if event.type == pygame.KEYUP:
+            keys_pressed.discard(event.key)
+            if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
+                player.stop()
 
     player.update()
     projectiles.update()
