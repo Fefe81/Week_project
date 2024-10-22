@@ -1,7 +1,6 @@
 import pygame
 import sys
 from pygame.locals import*
-
 pygame.init()
 
 clock = pygame.time.Clock()
@@ -18,7 +17,7 @@ class Projectiles(pygame.sprite.Sprite):
         self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (0, 0, 0), (5, 5), 5)
         self.rect = self.image.get_rect(center=(x + 30, y + 20))
-        self.velocity = 5
+        self.velocity = 7
 
     def update(self):
         self.rect.x += self.velocity
@@ -37,6 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.image = Player.pl
         self.rect = self.image.get_rect()
         self.rect.topleft = self.position
+        self.last_shot_time = 0
 
     def update(self):
         self.position[0] += self.velocity[0]
@@ -73,8 +73,11 @@ class Player(pygame.sprite.Sprite):
         self.velocity[1] = 0
     
     def tirer(self, projectiles):
-        projectile = Projectiles(self.rect.centerx, self.rect.top)
-        projectiles.add(projectile)
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time > 500:
+            projectile = Projectiles(self.rect.centerx, self.rect.top)
+            projectiles.add(projectile)
+            self.last_shot_time = current_time
 
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
@@ -107,7 +110,7 @@ while continuer:
             keys_pressed.discard(event.key)
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
                 player.stop()
-
+              
     player.update()
     projectiles.update()
     player.draw(ecran)
@@ -116,4 +119,3 @@ while continuer:
 
 pygame.quit()
 
-print("bonjour")
