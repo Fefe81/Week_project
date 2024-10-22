@@ -6,10 +6,24 @@ pygame.init()
 
 clock = pygame.time.Clock()
 pygame.display.set_caption("This is not a GAME")
-ecran = pygame.display.set_mode((800, 400))
+ecran = pygame.display.set_mode((900, 400))
 background = pygame.image.load('fond.jpg')
-bg = pygame.transform.scale(background, (800, 400))
+bg = pygame.transform.scale(background, (900, 400))
 continuer = True
+
+
+class Projectiles(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (255, 0, 0), (5, 5), 5)
+        self.rect = self.image.get_rect(center=(x + 30, y + 20))
+        self.velocity = 5
+
+    def update(self):
+        self.rect.x += self.velocity
+        if self.rect.x < 0:
+            self.kill()
 
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
@@ -47,8 +61,13 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.velocity[0] = 0
         self.velocity[1] = 0
+    
+    def tirer(self, projectiles):
+        projectile = Projectiles(self.rect.centerx, self.rect.top)
+        projectiles.add(projectile)
 
 player = Player(0, 320, 0, 0)
+projectiles = pygame.sprite.Group()
 
 while continuer:
     clock.tick(60)
@@ -70,12 +89,16 @@ while continuer:
                 player.move_down()
             elif event.key == pygame.K_UP:
                 player.move_up()
+            elif event.key == pygame.K_SPACE:
+                player.tirer(projectiles)
         if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or 
                                            event.key == pygame.K_DOWN or event.key == pygame.K_UP):
             player.stop()
 
     player.update()
+    projectiles.update()
     player.draw(ecran)
+    projectiles.draw(ecran)
     pygame.display.update()
 
 pygame.quit()
