@@ -3,11 +3,14 @@ import sys
 from pygame.locals import*
 pygame.init()
 
+
 clock = pygame.time.Clock()
 pygame.display.set_caption("This is not a GAME")
 ecran = pygame.display.set_mode((900, 400))
 background = pygame.image.load('fond.jpg')
 bg = pygame.transform.scale(background, (900, 400))
+programIcon = pygame.image.load('icon.jpg')
+pygame.display.set_icon(programIcon)
 continuer = True
 
 
