@@ -71,3 +71,6 @@ while continuer:
     pygame.display.update()
 
 pygame.quit()
+
+
+print("bonjour")
