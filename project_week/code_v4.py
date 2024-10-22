@@ -116,3 +116,4 @@ while continuer:
 
 pygame.quit()
 
+print("bonjour")
