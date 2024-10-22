@@ -13,8 +13,8 @@ continuer = True
 
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
-    player.set_colorkey((213, 213, 213))
-    pl = pygame.transform.scale(player, (60, 60))
+    player.set_colorkey((255, 255, 255))
+    pl = pygame.transform.scale(player, (80, 60))
 
     def __init__(self, x, y, velocity_x, velocity_y):
         super().__init__()
@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity[0] = 0
         self.velocity[1] = 0
 
-player = Player(320, 240, 0, 0)
+player = Player(0, 320, 0, 0)
 
 while continuer:
     clock.tick(60)
