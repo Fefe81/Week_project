@@ -30,12 +30,12 @@ class Projectiles(pygame.sprite.Sprite):
         
 class Ennemis(pygame.sprite.Sprite):
     def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 0, 0), (5, 5), 5)
-        self.rect = self.image.get_rect(center=(x , y))
+        super().__init__()        
         self.velocity = -5
-
+        self.image = pygame.image.load('zombie.jpg')
+        self.image = pygame.transform.scale(self.image, (30, 40))
+        self.image.set_colorkey((253, 253, 253))
+        self.rect = self.image.get_rect(center=(x , y))
     def update(self):
         self.rect.x += self.velocity
         if self.rect.x  < 0:
@@ -100,8 +100,10 @@ class Player(pygame.sprite.Sprite):
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spawn_time > 1000:
-            ennemie = Ennemis(900, randint(320, 410))
+            print("bg")
+            ennemie = Ennemis(850, randint(300, 390))
             ennemies.add(ennemie)
+            print(f"ennemie coutn {len(ennemies)}")
             self.last_spawn_time = current_time
 
 player = Player(0, 320, 0, 0)
