@@ -1,6 +1,7 @@
 import pygame
 import sys
 from pygame.locals import*
+from random import randint
 pygame.init()
 
 
@@ -26,6 +27,19 @@ class Projectiles(pygame.sprite.Sprite):
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
+        
+class Ennemis(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (255, 0, 0), (5, 5), 5)
+        self.rect = self.image.get_rect(center=(x , y))
+        self.velocity = -5
+
+    def update(self):
+        self.rect.x += self.velocity
+        if self.rect.x  < 0:
+            self.kill()
 
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
@@ -40,6 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = self.position
         self.last_shot_time = 0
+        self.last_spawn_time = 0
 
     def update(self):
         self.position[0] += self.velocity[0]
@@ -51,8 +66,8 @@ class Player(pygame.sprite.Sprite):
             self.position[0] = 900 - self.rect.width
         elif self.position[1] + self.rect.height < 320:
             self.position[1] = 320 - self.rect.height
-        elif self.position[1] + self.rect.height > 400:
-            self.position[1] = 400 - self.rect.height
+        elif self.position[1] + self.rect.height > 410:
+            self.position[1] = 410 - self.rect.height
         
         self.rect.topleft = self.position
 
@@ -69,7 +84,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity[1] = -1
         self.velocity[0] = 0
     def move_down(self):
-        self.velocity[1] = 1.
+        self.velocity[1] = 1
         self.velocity[0] = 0
     def stop(self):
         self.velocity[0] = 0
@@ -82,8 +97,16 @@ class Player(pygame.sprite.Sprite):
             projectiles.add(projectile)
             self.last_shot_time = current_time
 
+    def spawn_mob(self, ennemies):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_spawn_time > 1000:
+            ennemie = Ennemis(900, randint(320, 410))
+            ennemies.add(ennemie)
+            self.last_spawn_time = current_time
+
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
+ennemies = pygame.sprite.Group()
 keys_pressed = set()
 
 while continuer:
@@ -101,11 +124,11 @@ while continuer:
             keys_pressed.add(event.key)
             if event.key == pygame.K_RIGHT:
                 player.move_right()
-            elif event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT:
                 player.move_left()
-            elif event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN:
                 player.move_down()
-            elif event.key == pygame.K_UP:
+            if event.key == pygame.K_UP:
                 player.move_up()
             elif event.key == pygame.K_SPACE:
                 player.tirer(projectiles)
@@ -113,11 +136,14 @@ while continuer:
             keys_pressed.discard(event.key)
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
                 player.stop()
-              
+
+    player.spawn_mob(ennemies)        
     player.update()
     projectiles.update()
+    ennemies.update()
     player.draw(ecran)
     projectiles.draw(ecran)
+    ennemies.draw(ecran)
     pygame.display.update()
 
 pygame.quit()
