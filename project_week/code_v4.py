@@ -13,6 +13,10 @@ bg = pygame.transform.scale(background, (900, 400))
 programIcon = pygame.image.load('icon.jpg')
 pygame.display.set_icon(programIcon)
 continuer = True
+font = pygame.font.Font(None, 36)
+score = 0
+vie = 3
+spawn = 1
 
 
 class Projectiles(pygame.sprite.Sprite):
@@ -40,6 +44,14 @@ class Ennemis(pygame.sprite.Sprite):
         self.rect.x += self.velocity
         if self.rect.x  < 0:
             self.kill()
+
+class Base(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load('tower.jpg')
+        self.image = pygame.transform.scale(self.image, (70, 130))
+        self.image.set_colorkey((255, 255, 255))
+        self.rect = self.image.get_rect(center=(x, y))
 
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
@@ -105,10 +117,14 @@ class Player(pygame.sprite.Sprite):
             ennemies.add(ennemie)
             print(f"ennemie coutn {len(ennemies)}")
             self.last_spawn_time = current_time
+    def spawn_base(self, bases):
+        base = Base(self.rect.centerx - 10, self.rect.top + 15)
+        base.add(bases)
 
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
 ennemies = pygame.sprite.Group()
+bases = pygame.sprite.Group()
 keys_pressed = set()
 
 while continuer:
@@ -134,18 +150,33 @@ while continuer:
                 player.move_up()
             elif event.key == pygame.K_SPACE:
                 player.tirer(projectiles)
+                score += 1
         if event.type == pygame.KEYUP:
             keys_pressed.discard(event.key)
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
                 player.stop()
 
-    player.spawn_mob(ennemies)        
+    player.spawn_mob(ennemies)
+    if spawn == 1:
+        player.spawn_base(bases)
+        spawn += 1            
     player.update()
     projectiles.update()
     ennemies.update()
+    bases.update()
+
+    for projectile in projectiles:
+        hits = pygame.sprite.spritecollide(projectile, ennemies, True)
+        if hits:
+            score += 1
+            projectile.kill()
+
     player.draw(ecran)
     projectiles.draw(ecran)
     ennemies.draw(ecran)
+    bases.draw(ecran)
+    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+    ecran.blit(score_text, (10, 10))
     pygame.display.update()
 
 pygame.quit()
