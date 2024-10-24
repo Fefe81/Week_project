@@ -4,7 +4,6 @@ from pygame.locals import*
 from random import randint
 pygame.init()
 
-
 clock = pygame.time.Clock()
 pygame.display.set_caption("This is not a GAME")
 ecran = pygame.display.set_mode((900, 400))
@@ -17,7 +16,6 @@ font = pygame.font.Font(None, 36)
 score = 0
 vie = 3
 spawn = 1
-
 
 class Projectiles(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -48,7 +46,7 @@ class mega_Projectiles(pygame.sprite.Sprite):
 class Ennemis(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()        
-        self.velocity = -5
+        self.velocity = player.mob_velocity
         self.image = pygame.image.load('zombie.jpg')
         self.image = pygame.transform.scale(self.image, (30, 40))
         self.image.set_colorkey((253, 253, 253))
@@ -85,7 +83,7 @@ class powerLife(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.image = pygame.image.load('coeur.png')
-        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.image = pygame.transform.scale(self.image, (35, 35))
         self.rect = self.image.get_rect(center=(x, y))
 
 class Player(pygame.sprite.Sprite):
@@ -106,6 +104,7 @@ class Player(pygame.sprite.Sprite):
         self.last_spawn_time = 0
         self.last_spawn1_time = 0
         self.last_spawn2_time = 0
+        self.mob_velocity = -4.000
 
     def update(self):
         self.position[0] += self.velocity[0]
@@ -161,6 +160,7 @@ class Player(pygame.sprite.Sprite):
             ennemie = Ennemis(900, randint(290, 390))
             ennemies.add(ennemie) 
             self.last_spawn_time = current_time
+            player.mob_velocity -= 0.01
             if player.cadence > 0:
                 player.cadence -= 10
     def spawn_base(self, bases):
@@ -181,7 +181,7 @@ class Player(pygame.sprite.Sprite):
 
     def up_vie(self, up_vies):
         current_time = pygame.time.get_ticks()
-        if len(up_vies) == 0 and current_time - self.last_spawn2_time >= 10000 and vie < 3:
+        if len(up_vies) == 0 and current_time - self.last_spawn2_time >= 12000 and vie < 3:
             up_vie = powerLife(800, randint(300, 390))
             up_vies.add(up_vie)
             self.last_spawn2_time = current_time
@@ -291,6 +291,7 @@ while continuer:
             vie += 1
             up_vie.kill()
             initialiser_vies(vie, vies)
+            player.last_spawn2_time = pygame.time.get_ticks()
 
     if vie > 0:
         for base in bases:
