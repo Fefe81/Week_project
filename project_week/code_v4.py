@@ -192,7 +192,7 @@ def afficher_game_over(ecran, score):
     game_over_text = font.render("GAME OVER", True, (255, 0, 0))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
     ecran.blit(game_over_text, (900 / 3, 300 / 2))
-    ecran.blit(score_text, (1070 / 3, 250))
+    ecran.blit(score_text, (1000 / 3, 250))
     pygame.display.update()
     pygame.time.wait(10000)
     pygame.quit()
