@@ -31,6 +31,19 @@ class Projectiles(pygame.sprite.Sprite):
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
+
+class mega_Projectiles(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (0, 0, 0), (10, 10), 10)
+        self.rect = self.image.get_rect(center=(x + 30, y + 20))
+        self.velocity = 7
+
+    def update(self):
+        self.rect.x += self.velocity
+        if self.rect.x > 900:
+            self.kill()
         
 class Ennemis(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -61,10 +74,18 @@ class HP(pygame.sprite.Sprite):
         self.image.set_colorkey((253, 253, 253))
         self.rect = self.image.get_rect(center=(x, y))
 
+class powerUp(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load('powerup.png')
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect(center=(x, y))
+
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
     player.set_colorkey((255, 255, 255))
     pl = pygame.transform.scale(player, (80, 60))
+    power = 0
 
     def __init__(self, x, y, velocity_x, velocity_y):
         super().__init__()
@@ -75,6 +96,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.topleft = self.position
         self.last_shot_time = 0
         self.last_spawn_time = 0
+        self.last_spawn1_time = 0
+
 
     def update(self):
         self.position[0] += self.velocity[0]
@@ -117,10 +140,17 @@ class Player(pygame.sprite.Sprite):
             projectiles.add(projectile)
             self.last_shot_time = current_time
 
+    def mega_tirer(self, mega_projectiles):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time > 500:
+            mega_projectile = mega_Projectiles(self.rect.centerx, self.rect.top)
+            mega_projectiles.add(mega_projectile)
+            self.last_shot_time = current_time
+
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spawn_time > 1000:
-            ennemie = Ennemis(850, randint(300, 390))
+            ennemie = Ennemis(850, randint(290, 390))
             ennemies.add(ennemie) 
             self.last_spawn_time = current_time
     def spawn_base(self, bases):
@@ -131,11 +161,21 @@ class Player(pygame.sprite.Sprite):
         vie = HP(self.rect.centerx, self.rect.top)
         vie.add(vies)
 
+    def amelioration(self, powerups):
+        current_time = pygame.time.get_ticks()
+        if len(powerups) == 0 and current_time - self.last_spawn1_time >= 5000:
+            powerup = powerUp(randint(400, 700), randint(300, 390))
+            powerups.add(powerup)
+            self.last_spawn1_time = current_time
+            player.power = 0
+
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
+mega_projectiles = pygame.sprite.Group()
 ennemies = pygame.sprite.Group()
 bases = pygame.sprite.Group()
 vies = pygame.sprite.Group()
+powerups = pygame.sprite.Group()
 keys_pressed = set()
 
 for i in range(vie):
@@ -172,29 +212,48 @@ while continuer:
             if event.key == pygame.K_UP:
                 player.move_up()
             elif event.key == pygame.K_SPACE:
-                player.tirer(projectiles)
-                score += 1
+                if player.power == 1:
+                    player.mega_tirer(mega_projectiles)
+                else:
+                    player.tirer(projectiles)
         if event.type == pygame.KEYUP:
             keys_pressed.discard(event.key)
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
                 player.stop()
 
     player.spawn_mob(ennemies)
-
+    player.amelioration(powerups)
     if spawn == 1:
         player.spawn_base(bases)
         spawn += 1
 
     player.update()
     projectiles.update()
+    mega_projectiles.update()
     ennemies.update()
     bases.update()
+    powerups.update()
 
     for projectile in projectiles:
         hits = pygame.sprite.spritecollide(projectile, ennemies, True)
         if hits:
             score += 1
             projectile.kill()
+
+    for mega_projectile in mega_projectiles:
+        hits = pygame.sprite.spritecollide(mega_projectile, ennemies, True)
+        if hits:
+            score +=1
+            mega_projectile.kill()
+
+    for powerup in powerups:
+        hits = pygame.sprite.spritecollide(player, powerups, True)       
+        if hits:
+            player.power = 1
+            powerup.kill()
+            player.last_spawn1_time = pygame.time.get_ticks()
+            
+
 
     if vie > 0:
         for base in bases:
@@ -208,14 +267,16 @@ while continuer:
                     if pygame.sprite.collide_rect(base, ennemi):
                         ennemi.kill()
 
-    if vie <= 0:
-        continuer = False
+    #if vie <= 0:
+        #continuer = False
 
     player.draw(ecran)
     projectiles.draw(ecran)
+    mega_projectiles.draw(ecran)
     ennemies.draw(ecran)
     bases.draw(ecran)
     vies.draw(ecran)
+    powerups.draw(ecran)
 
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     ecran.blit(score_text, (10, 10))
