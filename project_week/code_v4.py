@@ -2,13 +2,13 @@ import pygame
 import sys
 from pygame.locals import*
 from random import randint
-pygame.init() #initialisation de pygame
+pygame.init() # initialisation de pygame
 
 clock = pygame.time.Clock() 
 pygame.display.set_caption("This is not a GAME")
 ecran = pygame.display.set_mode((900, 400))     
 background = pygame.image.load('fond.jpg')
-bg = pygame.transform.scale(background, (900, 400)) #Elements qui gères la taille de la page et le fond
+bg = pygame.transform.scale(background, (900, 400)) # Elements qui gères la taille de la page et le fond
 programIcon = pygame.image.load('icon.jpg')
 pygame.display.set_icon(programIcon)
 continuer = True
@@ -17,34 +17,34 @@ score = 0
 vie = 3
 spawn = 1
 
-class Projectiles(pygame.sprite.Sprite): #Classe qui gère les projectiles
-    def __init__(self, x, y): #Fonction qui initialise la classe Projectiles
+class Projectiles(pygame.sprite.Sprite): # Classe qui gère les projectiles
+    def __init__(self, x, y): # Fonction qui initialise la classe Projectiles
         super().__init__()
         self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (0, 0, 0), (5, 5), 5)
         self.rect = self.image.get_rect(center=(x + 30, y + 20))
         self.velocity = 7
 
-    def update(self): #Fonction qui update les projectiles et qui les supprimes si ils sortent de l'écran
+    def update(self): # Fonction qui update les projectiles et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
 
-class mega_Projectiles(pygame.sprite.Sprite): #Classe qui gère les mégas projectiles
-    def __init__(self, x, y): #Fonction qui initialise la classe mega_Projectiles
+class mega_Projectiles(pygame.sprite.Sprite): # Classe qui gère les mégas projectiles
+    def __init__(self, x, y): # Fonction qui initialise la classe mega_Projectiles
         super().__init__()
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (0, 0, 0), (10, 10), 10)
         self.rect = self.image.get_rect(center=(x + 30, y + 20))
         self.velocity = 7
 
-    def update(self): #Fonction qui update les mégas projectiles et qui les supprimes si ils sortent de l'écran
+    def update(self): # Fonction qui update les mégas projectiles et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
         
-class Ennemis(pygame.sprite.Sprite): #Classe qui gère les ennemies
-    def __init__(self, x, y): #Fonction qui initialise la classe Ennemies 
+class Ennemis(pygame.sprite.Sprite): # Classe qui gère les ennemies
+    def __init__(self, x, y): # Fonction qui initialise la classe Ennemies 
         super().__init__()        
         self.velocity = player.mob_velocity
         self.image = pygame.image.load('zombie.jpg')
@@ -52,42 +52,42 @@ class Ennemis(pygame.sprite.Sprite): #Classe qui gère les ennemies
         self.image.set_colorkey((253, 253, 253))
         self.rect = self.image.get_rect(center=(x , y))
 
-    def update(self): #Fonction qui update les ennemies et qui les supprimes si ils sortent de l'écran
+    def update(self): # Fonction qui update les ennemies et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x  < 0:
             self.kill()
 
-class Base(pygame.sprite.Sprite): #Classe qui gère la base
-    def __init__(self, x, y): #Fonction qui initialise la classe Base
+class Base(pygame.sprite.Sprite): # Classe qui gère la base
+    def __init__(self, x, y): # Fonction qui initialise la classe Base
         super().__init__()
         self.image = pygame.image.load('tower.png')
         self.image = pygame.transform.scale(self.image, (70, 130))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect(center=(x, y))
 
-class HP(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class HP(pygame.sprite.Sprite): # Classe qui gère les HP
+    def __init__(self, x, y): # Fonction qui initialise la classe HP
         super().__init__()
         self.image = pygame.image.load('coeur.png')
         self.image = pygame.transform.scale(self.image, (60, 60))
         self.image.set_colorkey((253, 253, 253))
         self.rect = self.image.get_rect(center=(x, y))
 
-class powerUp(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class powerUp(pygame.sprite.Sprite): # Classe qui gère les powerups
+    def __init__(self, x, y): # Fonction qui initialise la classe powerUP
         super().__init__()
         self.image = pygame.image.load('powerup.png')
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect(center=(x, y))
 
-class powerLife(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class powerLife(pygame.sprite.Sprite): # Classe qui gère les gain de vie
+    def __init__(self, x, y): # Fonction qui initialise la classe powerLife
         super().__init__()
         self.image = pygame.image.load('coeur.png')
         self.image = pygame.transform.scale(self.image, (35, 35))
         self.rect = self.image.get_rect(center=(x, y))
 
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble du jeu
     player = pygame.image.load('tank_sprite.jpg')
     player.set_colorkey((255, 255, 255))
     pl = pygame.transform.scale(player, (80, 60))
@@ -96,11 +96,11 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y, velocity_x, velocity_y):
         super().__init__()
-        self.position = [x, y]
-        self.velocity = [velocity_x, velocity_y]
-        self.image = Player.pl
-        self.rect = self.image.get_rect()
-        self.rect.topleft = self.position
+        self.position = [x, y] # Initialise la position du joueur avec les coordonnées x et y
+        self.velocity = [velocity_x, velocity_y] # Initialise la vélocité du joueur avec velocity_x et velocity_y 
+        self.image = Player.pl # Charge l'image du joueur
+        self.rect = self.image.get_rect()  # Obtient le rectangle englobant de l'image pour la gestion des collisions
+        self.rect.topleft = self.position # Place le coin supérieur gauche du rectangle à la position initiale
         self.last_shot_time = 0
         self.last_spawn_time = 0
         self.last_spawn1_time = 0
@@ -108,19 +108,20 @@ class Player(pygame.sprite.Sprite):
         self.mob_velocity = -4.000
 
     def update(self):
+        # Met à jour la position en ajoutant la vélocité actuelle
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
 
-        if self.position[0] < 0:
+        if self.position[0] < 0: # Vérifie si la position x est en dehors des limites à gauche
             self.position[0] = 0
-        elif self.position[0] + self.rect.width > 900:
+        elif self.position[0] + self.rect.width > 900: # Vérifie si la position x est en dehors des limites à droite
             self.position[0] = 900 - self.rect.width
-        elif self.position[1] + self.rect.height < 320:
+        elif self.position[1] + self.rect.height < 320: # Vérifie si la position y est en dehors des limites en haut
             self.position[1] = 320 - self.rect.height
-        elif self.position[1] + self.rect.height > 410:
+        elif self.position[1] + self.rect.height > 410: # Vérifie si la position y est en dehors des limites en bas
             self.position[1] = 410 - self.rect.height
         
-        self.rect.topleft = self.position
+        self.rect.topleft = self.position # Met à jour la position du rectangle englobant
 
     def draw(self, surface):
        surface.blit(self.image, self.rect.topleft)
