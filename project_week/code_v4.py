@@ -86,6 +86,7 @@ class Player(pygame.sprite.Sprite):
     player.set_colorkey((255, 255, 255))
     pl = pygame.transform.scale(player, (80, 60))
     power = 0
+    cadence = 2000
 
     def __init__(self, x, y, velocity_x, velocity_y):
         super().__init__()
@@ -149,10 +150,13 @@ class Player(pygame.sprite.Sprite):
 
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_spawn_time > 1000:
+        if current_time - self.last_spawn_time > player.cadence:
             ennemie = Ennemis(850, randint(290, 390))
             ennemies.add(ennemie) 
             self.last_spawn_time = current_time
+            if player.cadence > 0:
+                player.cadence -= 30
+            print(player.cadence)
     def spawn_base(self, bases):
         base = Base(self.rect.centerx - 20, self.rect.top + 15)
         base.add(bases)
