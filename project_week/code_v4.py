@@ -48,9 +48,17 @@ class Ennemis(pygame.sprite.Sprite):
 class Base(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load('tower.jpg')
+        self.image = pygame.image.load('tower.png')
         self.image = pygame.transform.scale(self.image, (70, 130))
         self.image.set_colorkey((255, 255, 255))
+        self.rect = self.image.get_rect(center=(x, y))
+
+class HP(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load('coeur.png')
+        self.image = pygame.transform.scale(self.image, (60, 60))
+        self.image.set_colorkey((253, 253, 253))
         self.rect = self.image.get_rect(center=(x, y))
 
 class Player(pygame.sprite.Sprite):
@@ -112,20 +120,35 @@ class Player(pygame.sprite.Sprite):
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spawn_time > 1000:
-            print("bg")
             ennemie = Ennemis(850, randint(300, 390))
-            ennemies.add(ennemie)
-            print(f"ennemie coutn {len(ennemies)}")
+            ennemies.add(ennemie) 
             self.last_spawn_time = current_time
     def spawn_base(self, bases):
-        base = Base(self.rect.centerx - 10, self.rect.top + 15)
+        base = Base(self.rect.centerx - 20, self.rect.top + 15)
         base.add(bases)
+
+    def vie(self, vies):
+        vie = HP(self.rect.centerx, self.rect.top)
+        vie.add(vies)
 
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
 ennemies = pygame.sprite.Group()
 bases = pygame.sprite.Group()
+vies = pygame.sprite.Group()
 keys_pressed = set()
+
+for i in range(vie):
+    coeur = HP(100 + i * 30, 30)
+    vies.add(coeur)
+
+def initialiser_vies(vie, vies):
+    vies.empty()
+    for i in range(vie):
+        coeur = HP(920 - (i + 1) * 60, 30)
+        vies.add(coeur)
+
+initialiser_vies(vie, vies)
 
 while continuer:
     clock.tick(60)
@@ -157,9 +180,11 @@ while continuer:
                 player.stop()
 
     player.spawn_mob(ennemies)
+
     if spawn == 1:
         player.spawn_base(bases)
-        spawn += 1            
+        spawn += 1
+
     player.update()
     projectiles.update()
     ennemies.update()
@@ -171,10 +196,27 @@ while continuer:
             score += 1
             projectile.kill()
 
+    if vie > 0:
+        for base in bases:
+            if pygame.sprite.spritecollideany(base, ennemies):
+                vie -= 1
+                vies.empty()
+                for i in range(vie):
+                    coeur = HP(920 - (i + 1) * 60, 30)
+                    vies.add(coeur)
+                for ennemi in ennemies:
+                    if pygame.sprite.collide_rect(base, ennemi):
+                        ennemi.kill()
+
+    if vie <= 0:
+        continuer = False
+
     player.draw(ecran)
     projectiles.draw(ecran)
     ennemies.draw(ecran)
     bases.draw(ecran)
+    vies.draw(ecran)
+
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     ecran.blit(score_text, (10, 10))
     pygame.display.update()
