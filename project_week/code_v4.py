@@ -2,13 +2,13 @@ import pygame
 import sys
 from pygame.locals import*
 from random import randint
-pygame.init()
+pygame.init() #initialisation de pygame
 
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 pygame.display.set_caption("This is not a GAME")
-ecran = pygame.display.set_mode((900, 400))
+ecran = pygame.display.set_mode((900, 400))     
 background = pygame.image.load('fond.jpg')
-bg = pygame.transform.scale(background, (900, 400))
+bg = pygame.transform.scale(background, (900, 400)) #Elements qui gères la taille de la page et le fond
 programIcon = pygame.image.load('icon.jpg')
 pygame.display.set_icon(programIcon)
 continuer = True
@@ -17,47 +17,48 @@ score = 0
 vie = 3
 spawn = 1
 
-class Projectiles(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class Projectiles(pygame.sprite.Sprite): #Classe qui gère les projectiles
+    def __init__(self, x, y): #Fonction qui initialise la classe Projectiles
         super().__init__()
         self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (0, 0, 0), (5, 5), 5)
         self.rect = self.image.get_rect(center=(x + 30, y + 20))
         self.velocity = 7
 
-    def update(self):
+    def update(self): #Fonction qui update les projectiles et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
 
-class mega_Projectiles(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class mega_Projectiles(pygame.sprite.Sprite): #Classe qui gère les mégas projectiles
+    def __init__(self, x, y): #Fonction qui initialise la classe mega_Projectiles
         super().__init__()
         self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (0, 0, 0), (10, 10), 10)
         self.rect = self.image.get_rect(center=(x + 30, y + 20))
         self.velocity = 7
 
-    def update(self):
+    def update(self): #Fonction qui update les mégas projectiles et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x > 900:
             self.kill()
         
-class Ennemis(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class Ennemis(pygame.sprite.Sprite): #Classe qui gère les ennemies
+    def __init__(self, x, y): #Fonction qui initialise la classe Ennemies 
         super().__init__()        
         self.velocity = player.mob_velocity
         self.image = pygame.image.load('zombie.jpg')
         self.image = pygame.transform.scale(self.image, (30, 40))
         self.image.set_colorkey((253, 253, 253))
         self.rect = self.image.get_rect(center=(x , y))
-    def update(self):
+
+    def update(self): #Fonction qui update les ennemies et qui les supprimes si ils sortent de l'écran
         self.rect.x += self.velocity
         if self.rect.x  < 0:
             self.kill()
 
-class Base(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+class Base(pygame.sprite.Sprite): #Classe qui gère la base
+    def __init__(self, x, y): #Fonction qui initialise la classe Base
         super().__init__()
         self.image = pygame.image.load('tower.png')
         self.image = pygame.transform.scale(self.image, (70, 130))
