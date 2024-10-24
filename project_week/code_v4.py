@@ -81,6 +81,13 @@ class powerUp(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect(center=(x, y))
 
+class powerLife(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load('coeur.png')
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect(center=(x, y))
+
 class Player(pygame.sprite.Sprite):
     player = pygame.image.load('tank_sprite.jpg')
     player.set_colorkey((255, 255, 255))
@@ -98,7 +105,7 @@ class Player(pygame.sprite.Sprite):
         self.last_shot_time = 0
         self.last_spawn_time = 0
         self.last_spawn1_time = 0
-
+        self.last_spawn2_time = 0
 
     def update(self):
         self.position[0] += self.velocity[0]
@@ -151,12 +158,11 @@ class Player(pygame.sprite.Sprite):
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spawn_time > player.cadence:
-            ennemie = Ennemis(850, randint(290, 390))
+            ennemie = Ennemis(900, randint(290, 390))
             ennemies.add(ennemie) 
             self.last_spawn_time = current_time
             if player.cadence > 0:
-                player.cadence -= 30
-            print(player.cadence)
+                player.cadence -= 10
     def spawn_base(self, bases):
         base = Base(self.rect.centerx - 20, self.rect.top + 15)
         base.add(bases)
@@ -173,6 +179,25 @@ class Player(pygame.sprite.Sprite):
             self.last_spawn1_time = current_time
             player.power = 0
 
+    def up_vie(self, up_vies):
+        current_time = pygame.time.get_ticks()
+        if len(up_vies) == 0 and current_time - self.last_spawn2_time >= 10000 and vie < 3:
+            up_vie = powerLife(800, randint(300, 390))
+            up_vies.add(up_vie)
+            self.last_spawn2_time = current_time
+    
+def afficher_game_over(ecran, score):
+    ecran.fill((0, 0, 0)) 
+    font = pygame.font.Font(None, 74)
+    game_over_text = font.render("GAME OVER", True, (255, 0, 0))
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+    ecran.blit(game_over_text, (900 / 3, 300 / 2))
+    ecran.blit(score_text, (1070 / 3, 250))
+    pygame.display.update()
+    pygame.time.wait(10000)
+    pygame.quit()
+    sys.exit()
+
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
 mega_projectiles = pygame.sprite.Group()
@@ -180,6 +205,7 @@ ennemies = pygame.sprite.Group()
 bases = pygame.sprite.Group()
 vies = pygame.sprite.Group()
 powerups = pygame.sprite.Group()
+up_vies = pygame.sprite.Group()
 keys_pressed = set()
 
 for i in range(vie):
@@ -227,6 +253,7 @@ while continuer:
 
     player.spawn_mob(ennemies)
     player.amelioration(powerups)
+    player.up_vie(up_vies)
     if spawn == 1:
         player.spawn_base(bases)
         spawn += 1
@@ -237,6 +264,7 @@ while continuer:
     ennemies.update()
     bases.update()
     powerups.update()
+    up_vies.update()
 
     for projectile in projectiles:
         hits = pygame.sprite.spritecollide(projectile, ennemies, True)
@@ -257,7 +285,12 @@ while continuer:
             powerup.kill()
             player.last_spawn1_time = pygame.time.get_ticks()
             
-
+    for up_vie in up_vies:
+        hits = pygame.sprite.spritecollide(player, up_vies, True)
+        if hits:
+            vie += 1
+            up_vie.kill()
+            initialiser_vies(vie, vies)
 
     if vie > 0:
         for base in bases:
@@ -271,8 +304,8 @@ while continuer:
                     if pygame.sprite.collide_rect(base, ennemi):
                         ennemi.kill()
 
-    #if vie <= 0:
-        #continuer = False
+    if vie <= 0:
+        afficher_game_over(ecran, score)
 
     player.draw(ecran)
     projectiles.draw(ecran)
@@ -281,9 +314,12 @@ while continuer:
     bases.draw(ecran)
     vies.draw(ecran)
     powerups.draw(ecran)
+    up_vies.draw(ecran)
 
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     ecran.blit(score_text, (10, 10))
+
+
     pygame.display.update()
 
 pygame.quit()
