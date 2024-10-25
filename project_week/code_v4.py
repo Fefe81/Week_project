@@ -123,54 +123,54 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
         
         self.rect.topleft = self.position # Met à jour la position du rectangle englobant
 
-    def draw(self, surface):
+    def draw(self, surface): # Dessine l'image du joueur sur la surface donnée à la position actuelle du rectangle englobant
        surface.blit(self.image, self.rect.topleft)
 
-    def move_left(self):
+    def move_left(self): # Déplace le joueur vers la gauche en définissant la vélocité x à -1 et y à 0
         self.velocity[0] = -1
         self.velocity[1] = 0
-    def move_right(self):
+    def move_right(self): # Déplace le joueur vers la droite en définissant la vélocité x à 1 et y à 0
         self.velocity[0] = 1
         self.velocity[1] = 0
-    def move_up(self):
+    def move_up(self): # Déplace le joueur vers le haut en définissant la vélocité y à -1 et x à 0
         self.velocity[1] = -1
         self.velocity[0] = 0
-    def move_down(self):
+    def move_down(self): # Déplace le joueur vers le bas en définissant la vélocité y à 1 et x à 0
         self.velocity[1] = 1
         self.velocity[0] = 0
-    def stop(self):
+    def stop(self): # Arrête le mouvement du joueur en définissant les vélocités x et y à 0
         self.velocity[0] = 0
         self.velocity[1] = 0
     
     def tirer(self, projectiles):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > 500:
-            projectile = Projectiles(self.rect.centerx, self.rect.top)
+            projectile = Projectiles(self.rect.centerx, self.rect.top) # Crée un nouveau projectile à la position actuelle du joueur
             projectiles.add(projectile)
             self.last_shot_time = current_time
 
     def mega_tirer(self, mega_projectiles):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > 500:
-            mega_projectile = mega_Projectiles(self.rect.centerx, self.rect.top)
+            mega_projectile = mega_Projectiles(self.rect.centerx, self.rect.top) # Crée un nouveau méga projectile à la position actuelle du joueur
             mega_projectiles.add(mega_projectile)
             self.last_shot_time = current_time
 
     def spawn_mob(self, ennemies):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spawn_time > player.cadence:
-            ennemie = Ennemis(900, randint(290, 390))
+            ennemie = Ennemis(900, randint(290, 390)) # Crée un nouvel ennemi à une position aléatoire en y
             ennemies.add(ennemie) 
             self.last_spawn_time = current_time
             player.mob_velocity -= 0.01
             if player.cadence > 0:
-                player.cadence -= 10
+                player.cadence -= 10 # Augmente la cadence de spawn des mobs au fur est à mesure pour augmenter la difficulté
     def spawn_base(self, bases):
-        base = Base(self.rect.centerx - 20, self.rect.top + 15)
+        base = Base(self.rect.centerx - 20, self.rect.top + 15) # Crée une base
         base.add(bases)
 
     def vie(self, vies):
-        vie = HP(self.rect.centerx, self.rect.top)
+        vie = HP(self.rect.centerx, self.rect.top) # Gère l'affichage de vie 
         vie.add(vies)
 
     def amelioration(self, powerups):
@@ -188,7 +188,7 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
             up_vies.add(up_vie)
             self.last_spawn2_time = current_time
     
-def afficher_game_over(ecran, score):
+def afficher_game_over(ecran, score): #Bloque le jeu affiche l'ecran de fin et se ferme après 10sec
     ecran.fill((0, 0, 0)) 
     font = pygame.font.Font(None, 74)
     game_over_text = font.render("GAME OVER", True, (255, 0, 0))
@@ -200,6 +200,7 @@ def afficher_game_over(ecran, score):
     pygame.quit()
     sys.exit()
 
+# Création de groupes de sprites pour différents types d'objets
 player = Player(0, 320, 0, 0)
 projectiles = pygame.sprite.Group()
 mega_projectiles = pygame.sprite.Group()
@@ -211,7 +212,7 @@ up_vies = pygame.sprite.Group()
 keys_pressed = set()
 
 for i in range(vie):
-    coeur = HP(100 + i * 30, 30)
+    coeur = HP(100 + i * 30, 30) # Ajout des coeurs au groupe vies en fonction du nombre de vies initial
     vies.add(coeur)
 
 def initialiser_vies(vie, vies):
@@ -222,12 +223,12 @@ def initialiser_vies(vie, vies):
 
 initialiser_vies(vie, vies)
 
-while continuer:
+while continuer: # Boucle principale du jeu
     clock.tick(60)
     ecran.blit(bg, (0, 0))
 
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_x: # Ferme le jeu quand on appuie sur la croix ou sur la touche x en mettant la variable continuer à False
             continuer = False
 
         elif event.type == pygame.QUIT:
@@ -238,20 +239,20 @@ while continuer:
             if event.key == pygame.K_RIGHT:
                 player.move_right()
             if event.key == pygame.K_LEFT:
-                player.move_left()
+                player.move_left()              # Gère touts les déplacements du joueurs en fonction de quelle flèche est pressée
             if event.key == pygame.K_DOWN:
                 player.move_down()
             if event.key == pygame.K_UP:
                 player.move_up()
             elif event.key == pygame.K_SPACE:
                 if player.power == 1:
-                    player.mega_tirer(mega_projectiles)
+                    player.mega_tirer(mega_projectiles) # Gère les tirs du joueur(touche espace)
                 else:
                     player.tirer(projectiles)
         if event.type == pygame.KEYUP:
-            keys_pressed.discard(event.key)
+            keys_pressed.discard(event.key) # Retire la touche relâchée de l'ensemble des touches pressées
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
-                player.stop()
+                player.stop() # Arrête le mouvement du joueur si aucune touche de direction n'est pressée
 
     player.spawn_mob(ennemies)
     player.amelioration(powerups)
