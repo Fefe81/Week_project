@@ -106,6 +106,7 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
         self.last_spawn1_time = 0
         self.last_spawn2_time = 0
         self.mob_velocity = -4.000
+        self.frequence = 550
 
     def update(self):
         # Met à jour la position en ajoutant la vélocité actuelle
@@ -144,14 +145,14 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
     
     def tirer(self, projectiles):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_shot_time > 500:
+        if current_time - self.last_shot_time > player.frequence:
             projectile = Projectiles(self.rect.centerx, self.rect.top) # Crée un nouveau projectile à la position actuelle du joueur
             projectiles.add(projectile)
             self.last_shot_time = current_time
 
     def mega_tirer(self, mega_projectiles):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_shot_time > 500:
+        if current_time - self.last_shot_time > player.frequence:
             mega_projectile = mega_Projectiles(self.rect.centerx, self.rect.top) # Crée un nouveau méga projectile à la position actuelle du joueur
             mega_projectiles.add(mega_projectile)
             self.last_shot_time = current_time
@@ -165,6 +166,9 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
             player.mob_velocity -= 0.01
             if player.cadence > 0:
                 player.cadence -= 10 # Augmente la cadence de spawn des mobs au fur est à mesure pour augmenter la difficulté
+            if player.frequence >= 300:
+                player.frequence -= 1
+
     def spawn_base(self, bases):
         base = Base(self.rect.centerx - 20, self.rect.top + 15) # Crée une base
         base.add(bases)
@@ -254,13 +258,15 @@ while continuer: # Boucle principale du jeu
             if not keys_pressed.intersection({pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP}):
                 player.stop() # Arrête le mouvement du joueur si aucune touche de direction n'est pressée
 
+    # Gère l'apparition de touts les objets du jeu
     player.spawn_mob(ennemies)
     player.amelioration(powerups)
     player.up_vie(up_vies)
     if spawn == 1:
-        player.spawn_base(bases)
+        player.spawn_base(bases) 
         spawn += 1
 
+    # Met à jour les positions et états des objets
     player.update()
     projectiles.update()
     mega_projectiles.update()
@@ -270,26 +276,26 @@ while continuer: # Boucle principale du jeu
     up_vies.update()
 
     for projectile in projectiles:
-        hits = pygame.sprite.spritecollide(projectile, ennemies, True)
+        hits = pygame.sprite.spritecollide(projectile, ennemies, True) # Gère les collisions entre les projectiles et les ennemis
         if hits:
             score += 1
             projectile.kill()
 
     for mega_projectile in mega_projectiles:
-        hits = pygame.sprite.spritecollide(mega_projectile, ennemies, True)
+        hits = pygame.sprite.spritecollide(mega_projectile, ennemies, True) # Gère les collisions entre les méga projectiles et les ennemis
         if hits:
             score +=1
             mega_projectile.kill()
 
     for powerup in powerups:
-        hits = pygame.sprite.spritecollide(player, powerups, True)       
+        hits = pygame.sprite.spritecollide(player, powerups, True) # Gère les collisions entre le joueur et les power-ups       
         if hits:
             player.power = 1
             powerup.kill()
             player.last_spawn1_time = pygame.time.get_ticks()
             
     for up_vie in up_vies:
-        hits = pygame.sprite.spritecollide(player, up_vies, True)
+        hits = pygame.sprite.spritecollide(player, up_vies, True) # Gère les collisions entre le joueur et les vies supplémentaires
         if hits:
             vie += 1
             up_vie.kill()
@@ -298,10 +304,10 @@ while continuer: # Boucle principale du jeu
 
     if vie > 0:
         for base in bases:
-            if pygame.sprite.spritecollideany(base, ennemies):
+            if pygame.sprite.spritecollideany(base, ennemies): # Soustrait une vie au joueur si un ennemi entre en collision avec la base
                 vie -= 1
                 vies.empty()
-                for i in range(vie):
+                for i in range(vie): # Réinitialise les objets de vie (coeurs) en fonction du nombre de vies restantes
                     coeur = HP(920 - (i + 1) * 60, 30)
                     vies.add(coeur)
                 for ennemi in ennemies:
@@ -309,8 +315,9 @@ while continuer: # Boucle principale du jeu
                         ennemi.kill()
 
     if vie <= 0:
-        afficher_game_over(ecran, score)
+        afficher_game_over(ecran, score) # Si le joueur n'a plus de vies, cela affiche l'écran de fin
 
+    # Dessine touts les éléments du jeu à l'écran
     player.draw(ecran)
     projectiles.draw(ecran)
     mega_projectiles.draw(ecran)
@@ -320,11 +327,12 @@ while continuer: # Boucle principale du jeu
     powerups.draw(ecran)
     up_vies.draw(ecran)
 
+    # Affiche le score du joueur en temps réel
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     ecran.blit(score_text, (10, 10))
 
-
+    print(player.frequence)
     pygame.display.update()
 
-pygame.quit()
+pygame.quit() # Quitte pygame
 
