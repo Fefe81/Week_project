@@ -331,7 +331,6 @@ while continuer: # Boucle principale du jeu
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     ecran.blit(score_text, (10, 10))
 
-    print(player.frequence)
     pygame.display.update()
 
 pygame.quit() # Quitte pygame
