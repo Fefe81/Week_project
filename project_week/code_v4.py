@@ -5,7 +5,7 @@ from random import randint
 pygame.init() # initialisation de pygame
 
 clock = pygame.time.Clock() 
-pygame.display.set_caption("This is not a GAME")
+pygame.display.set_caption("STEEL FORTRESS")
 ecran = pygame.display.set_mode((900, 400))     
 background = pygame.image.load('fond.jpg')
 bg = pygame.transform.scale(background, (900, 400)) # Elements qui gères la taille de la page et le fond
