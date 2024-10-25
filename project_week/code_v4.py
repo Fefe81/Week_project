@@ -136,7 +136,7 @@ class Player(pygame.sprite.Sprite): # Classe qui gère le joueur et l'ensemble d
     def move_up(self): # Déplace le joueur vers le haut en définissant la vélocité y à -1 et x à 0
         self.velocity[1] = -1
         self.velocity[0] = 0
-    def move_down(self): # Déplace le joueur vers le bas en définissant la vélocité y à 1 et x à 0
+    def move_down(self): # Dplace le joueur vers le bas en définissant la vélocité y à 1 et x à 0
         self.velocity[1] = 1
         self.velocity[0] = 0
     def stop(self): # Arrête le mouvement du joueur en définissant les vélocités x et y à 0
